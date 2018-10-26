@@ -9,6 +9,7 @@
 <body>
 <div id="app">
     <app></app>
+    <router-view></router-view>
 </div>
 
 <script src="{{ asset('js/app.js') }}"></script>

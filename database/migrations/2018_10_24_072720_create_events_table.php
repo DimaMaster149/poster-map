@@ -21,6 +21,8 @@ class CreateEventsTable extends Migration
 			$table->date('event_date');
 			$table->time('event_time');
 			$table->string('event_location');
+			$table->double('event_lat', 15, 8)->nullable();
+			$table->double('event_long', 15, 8)->nullable();
 			$table->integer('event_user');
 			$table->integer('event_state');
 			$table->timestamps();

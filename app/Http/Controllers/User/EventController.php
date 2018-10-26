@@ -15,7 +15,7 @@ use Intervention\Image\Facades\Image as Image;
 class EventController extends Controller
 {
 	//Список опубликованных ивентов на сегодня
-	public function publishedEvents() {
+	public function publishedDailyEvents() {
 		$date = new DateTime();
 		$publishedEvents = Event::orderby('event_id')->where('event_state', 1)->where('event_date', $date->format('Y-m-d'))->get();
 		return response()->json($publishedEvents);

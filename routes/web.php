@@ -22,7 +22,7 @@ Route::get('/', function () {
 });
 Route::get('/home', 'HomeController@index')->name('home');
 //published events for users
-Route::get('/events/published', 'User\EventController@publishedEvents');
+Route::get('/events/published', 'User\EventController@publishedDailyEvents');
 Route::post('/events/published/search', 'User\EventController@publishedEventsSearch');
 //proposed events for one user
 Route::get('/events/proposed', 'User\EventController@proposedEvents');

@@ -6,7 +6,7 @@
                     <div class="nav__wrap">
                             <div class="nav">
                                 <div class="nav__item">
-                                    <router-link :to="{ name: 'example' }">Карта</router-link>
+                                    <router-link :to="{ name: 'yandex' }">Карта</router-link>
                                 </div>
                                 <div class="nav__item">
                                     <router-link :to="{ name: 'example' }">Предложить</router-link>
@@ -30,7 +30,6 @@
             </div>
         </div>
         <div class="container">
-            <router-view></router-view>
         </div>
     </div>
 </template>
