@@ -38,6 +38,7 @@ class EventController extends Controller
 		$fileName = time().'_'.$extension;
 		$resizedImage = Image::make($file)->resize(640,480);
 		$resizedImage->save('images/'.$fileName);
+
 		$userId = Auth::user()->id;
 
 		$proposedEvent = new Event($request->all());

@@ -9,7 +9,7 @@
                                     <router-link :to="{ name: 'yandex' }">Карта</router-link>
                                 </div>
                                 <div class="nav__item">
-                                    <router-link :to="{ name: 'example' }">Предложить</router-link>
+                                    <router-link :to="{ name: 'propose' }">Предложить</router-link>
                                 </div>
                                 <div class="nav__item">
                                     <router-link :to="{ name: 'example' }">Добавить</router-link>

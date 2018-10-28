@@ -3,7 +3,7 @@
         <yandex-map
                 :coords="[47.50, 35.10]"
                 zoom="10"
-                style="width: 90%; height: 600px;"
+                style="width: 95%; height: 600px;"
                 :cluster-options="{
         1: {clusterDisableClickZoom: true}
         }"
@@ -17,7 +17,7 @@
                     :coords="marker.coords"
                     :hint-content="marker.title"
                     :balloon="{header: marker.title, body: marker.description, footer: marker.date}"
-                    :icon="{color: 'green', glyph: 'cinema'}"
+                    :icon="{color: 'green'}"
                     :cluster-name="marker.title"
             ></ymap-marker>
             <!--<ul>-->
@@ -27,7 +27,7 @@
         <div class="events__wrap">
             <div class="events">
                 <div class="events__title">
-                    Все события в городе Запорожье на {{searchDay}}
+                    Все события в городе Запорожье {{searchDay}}.
                 </div>
                 <div class="event-block" v-for="event in this.publishedDailyEvents" :key="event.event_id">
                     <div class="event-image__wrap">
@@ -103,11 +103,44 @@
     margin:20px 50px 50px 50px;
 }
     .events__wrap{
-        padding: 0;
-        margin:50px 100px 0 100px;
+        width:80%;
+        height: auto;
+        margin:50px 100px 20px 100px;
+        padding-right: 100px;
     }
     .events{
         display:flex;
-        flex-direction: row;
+        flex-direction: column;
     }
+    .events__title{
+        width:100%;
+        font-size:18px;
+        text-align: center;
+        font-weight: 600;
+        font-family: Roboto, sans-serif;
+        margin:0 0 10px 0;
+    }
+.event-block {
+    width: 100%;
+    margin: 10px 0 15px 0;
+    display: flex;
+}
+.event-image__wrap {
+    max-width: 350px;
+    height: auto;
+    padding: 0 50px 0 0;
+}
+.event-about {
+    font-size: 16px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+}
+.event-about__title {
+    font-size: 18px;
+    font-weight: 500;
+    padding-bottom: 10px;
+}
+.event-about__description {
+    padding-bottom: 15px;
+}
 </style>
