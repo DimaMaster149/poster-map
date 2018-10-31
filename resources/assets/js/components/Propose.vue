@@ -2,7 +2,7 @@
     <div class="container">
         <div class="propose__wrap">
             <div class="propose">
-                <div class="propose-block">
+                <div class="propose-form">
                     <form @submit="proposeStore" enctype="multipart/form-data" >
                         <div class="form-group">
                             <label for="event_title"> Введите название </label>
@@ -21,8 +21,8 @@
                         </div>
                         <div class="form-group">
                             <label for="event_date"> Выберите дату проведения </label>
-                            <input type="text" class="form-control" name="event_date" value="" placeholder="2018-10-25"
-                                   v-model="event.event_date">
+                            <input class="form-control" name="event_date" placeholder="2018-10-25"
+                                         v-model="event.event_date">
                         </div>
                         <div class="form-group">
                             <label for="event_time"> Введите время </label>
@@ -33,8 +33,45 @@
                             <label for="event_image"> Выберите картинку для афиши </label>
                             <input type="file" class="form-control" name="event_image" value="" v-on:change="onImageChange">
                         </div>
+                        <div class="propose-form__image-description">
+                            *Если при редактировании картинка не выбрана, значит она останется прежней.
+                        </div>
                         <button class="btn btn-success">Предложить</button>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="events__wrap">
+            <div class="events">
+                <div class="events__title">
+                    Ваши предложенные события:
+                </div>
+                <div class="event-block" v-for="event in this.proposedUserEvents" :key="event.event_id">
+                    <div class="event-image__wrap">
+                        <div class="event-image">
+                            <img class="event-image__img" :src = "'/images/'+event.event_image" alt="">
+                        </div>
+                    </div>
+                    <div class="event-about__wrap">
+                        <div class="event-about">
+                            <div class="event-about__title">{{event.event_title}}</div>
+                            <div class="event-about__description">{{event.event_description}}</div>
+                            <div class="event-about__location">Месторасположение: {{event.event_location}}</div>
+                            <div class="event-about__date">Дата: {{event.event_date}}</div>
+                            <div class="event-about__time">Время: {{event.event_time}}</div>
+                        </div>
+                        <div class="event-buttons__wrap">
+                            <div class="event-buttons">
+                                <div class="event-buttons__item">
+                                    <button class="btn btn-warning" v-on:click="editEvent(event)">Редактировать</button>
+                                </div>
+                                <div class="event-buttons__item">
+                                    <button class="btn btn-danger" v-on:click="deleteEvent(event)">Удалить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -42,7 +79,7 @@
 </template>
 
 <script>
-    import DatePicker from 'vue2-datepicker'
+    import Datepicker from 'vuejs-datepicker';
 
     export default {
         data(){
@@ -54,16 +91,33 @@
                     event_date:'',
                     event_time:'',
                     event_image:{},
+                },
+                timePickerOptions:{
+                    format: "YYYY-MM-DD",
+                    lang: 'en'
                 }
             }
+        },
+        created:
+            function () {
+                this.axios.get("events/proposed")
+                    .then(resp =>{
+                        let events = resp.data;
+                        this.$store.commit('loadProposedUserEvents', events);
+                    }).catch(err => {
+                    console.log(err);
+                });
+            },
+        computed:{
+            proposedUserEvents: function() {
+                console.log('computed propose', this.$store.getters.getProposedUserEvents);
+                return this.$store.getters.getProposedUserEvents;
+            },
         },
         methods: {
             onImageChange(e){
                 console.log(e.target.files[0]);
                 this.event.event_image = e.target.files[0];
-            },
-            customFormatter(date) {
-                return moment(date).format('MMMM Do YYYY');
             },
             proposeStore(e) {
                 e.preventDefault();
@@ -84,19 +138,134 @@
                 this.axios.post('/events/proposed/store', formData, config)
                     .then(function (response) {
                         console.log(response);
+                        currentObj.event.event_title = '';
+                        currentObj.event.event_description = '';
+                        currentObj.event.event_location = '';
+                        currentObj.event.event_date = '';
+                        currentObj.event.event_time = '';
+                        currentObj.event.event_image = {};
+                        //не получается передать картинку
+                        // currentObj.$store.commit('addProposedUserEvents', currentObj.event);
                     })
                     .catch(function (error) {
                         console.log(error);
                     });
             },
+            editEvent(event){
+                let currentObj = this;
+                this.event.event_title = event.event_title;
+                this.event.event_description = event.event_description;
+                this.event.event_location = event.event_location;
+                this.event.event_date = event.event_date;
+                this.event.event_time = event.event_time;
+                this.event.event_image = {};
+            },
+            deleteEvent (event){
+                let currentObj = this;
+                console.log('delete function for ', event);
+                swal({
+                    title: "Are you sure?",
+                    text: "Once deleted, you will not be able to recover this event. ",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            this.axios.delete("/events/proposed/delete/"+event.event_id)
+                                .then(function(resp){
+                                console.log('delete response', resp);
+                                currentObj.$router.push('/');
+                            }).catch((err)=>{
+                                    console.log(err)
+                                });
+                            swal("This event was deleted", {
+                                icon: "success",
+                            });
+                        } else {
+                            swal("This event is safe");
+                        }
+                    });
+            },
         },
         name: "Propose",
         components:{
-            DatePicker
+            Datepicker,
         },
     }
 </script>
 
 <style scoped>
-
+.propose__wrap{
+    margin:20px 0 0 0;
+}
+.propose{
+    display:flex;
+    justify-content: center;
+}
+.propose-form{
+    border:1px solid black;
+    padding:50px;
+}
+.events__wrap{
+    width:80%;
+    height: auto;
+    margin:50px 100px 20px 100px;
+    padding-right: 100px;
+}
+.events{
+    display:flex;
+    flex-direction: column;
+}
+.events__title{
+    width:100%;
+    font-size:18px;
+    text-align: center;
+    font-weight: 600;
+    font-family: Roboto, sans-serif;
+    margin:0 0 10px 0;
+}
+.event-block {
+    width: 100%;
+    margin: 10px 0 15px 0;
+    display: flex;
+}
+.event-image__wrap {
+    max-width: 350px;
+    height: auto;
+    padding: 0 50px 0 0;
+}
+.event-image__img{
+    width:100%;
+    height: auto;
+}
+.event-about {
+    font-size: 16px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+}
+.event-about__title {
+    font-size: 18px;
+    font-weight: 500;
+    padding-bottom: 10px;
+}
+.event-about__description {
+    padding-bottom: 15px;
+}
+.event-buttons{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.event-buttons__wrap{
+    margin-top: 10px;
+}
+.event-buttons__item{
+    margin: 10px 15px 0 0;
+}
+.propose-form__image-description {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #696969;
+}
 </style>

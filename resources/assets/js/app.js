@@ -7,6 +7,8 @@ import VueRouter from 'vue-router/dist/vue-router.js';
 import YmapPlugin from 'vue-yandex-maps'
 import {store} from './store/index'
 import moment from 'vue-moment';
+import swal from 'sweetalert';
+
 
 Vue.use(moment);
 Vue.use(YmapPlugin);

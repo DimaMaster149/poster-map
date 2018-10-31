@@ -73,7 +73,10 @@
         min-width:50px;
         max-width:250px;
         height: 30px;
-        padding:10px;
+        padding: 0 10px 0 10px;
+    }
+    .nav__item a, .auth__item a{
+        text-decoration: none;
     }
     .nav__item a{
         color:#00008B;

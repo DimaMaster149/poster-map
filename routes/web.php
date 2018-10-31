@@ -28,7 +28,6 @@ Route::post('/events/published/search', 'User\EventController@publishedEventsSea
 Route::get('/events/proposed', 'User\EventController@proposedEvents');
 Route::post('events/proposed/store', 'User\EventController@proposedEventsStore')->name('proposeStore');
 Route::get('/events/proposed/{id?}', 'User\EventController@proposedEventsEdit');
-Route::post('/events/proposed/{id?}', 'User\EventController@proposedEventsUpdate');
 Route::delete('/events/proposed/delete/{id?}', 'User\EventController@proposedEventsDelete');
 
 //proposed events for admin

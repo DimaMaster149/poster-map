@@ -10,7 +10,7 @@ use App\Event;
 use App\State;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image as Image;
-
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
@@ -40,39 +40,33 @@ class EventController extends Controller
 		$resizedImage->save('images/'.$fileName);
 
 		$userId = Auth::user()->id;
-
-		$proposedEvent = new Event($request->all());
-		$proposedEvent->event_image=$fileName;
-		$proposedEvent->event_user = $userId;
-		$proposedEvent->event_state=2;
-		$proposedEvent->save();
-		return response()->json($proposedEvent);
+		$eventTitle = $request->event_title;
+		$foundEvent = Event::where('event_title', $eventTitle)->where('event_user', $userId)->first();
+				if($foundEvent){
+			Event::where('event_title', $eventTitle)->update([
+				'event_title' =>  $request->input('event_title'),
+				'event_description' => $request->input('event_description'),
+				'event_state' => 2,
+				'event_user' => $userId,
+				'event_image' =>$fileName,
+				'event_date' => $request->input('event_date'),
+				'event_time' => $request->input('event_time'),
+				'event_location' => $request->input('event_location'),
+			]);
+			return redirect('/');
+		}else{
+			$proposedEvent = new Event($request->all());
+			$proposedEvent->event_image=$fileName;
+			$proposedEvent->event_user = $userId;
+			$proposedEvent->event_state=2;
+			$proposedEvent->save();
+			return redirect('/');
+		}
 	}
 
 	public function proposedEventsEdit($id) {
 		$proposedEvent = Event::find($id);
 		return response()->json($proposedEvent);
-	}
-
-	public function proposedEventsUpdate(Request $request, $id) {
-		$file = $request->file('event_image'); //?
-		$extension = $file->getClientOriginalName();
-		$fileName = time().'_'.$extension;
-		$resizedImage = Image::make($file)->resize(640,480);
-		$resizedImage->save('images/'.$fileName);
-		$userId = Auth::user()->id;
-
-		Event::where('event_id', $id)->update([
-			'event_title' =>  $request->input('event_title'),
-			'event_description' => $request->input('event_description'),
-			'event_state' => 2,
-			'event_user' => $userId,
-			'event_image' =>$fileName,
-			'event_date' => $request->input('event_date'),
-			'event_time' => $request->input('event_time'),
-			'event_location' => $request->input('event_location'),
-		]);
-		return redirect('/home');
 	}
 
 	public function proposedEventsDelete($id){
