@@ -10,6 +10,7 @@ import moment from 'vue-moment';
 import swal from 'sweetalert';
 
 
+
 Vue.use(moment);
 Vue.use(YmapPlugin);
 Vue.use(VueRouter);

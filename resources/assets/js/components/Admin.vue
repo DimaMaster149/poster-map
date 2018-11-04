@@ -187,8 +187,8 @@
                 let city = address[0];
                 let street = address[1];
                 let house = address[2];
-                let geo_api = '67cdd21c-69a8-430b-86e8-bd748050180d';
-                let query = `https://geocode-maps.yandex.ru/1.x/?format=json&apikey=${geo_api}&geocode=${city},+${street},+${house}`;
+                // let geo_api = geocoderKey;
+                let query = `https://geocode-maps.yandex.ru/1.x/?format=json&apikey=${geocoderKey}&geocode=${city},+${street},+${house}`;
                 let instance = currentObj.axios.create();
                 delete instance.defaults.headers.common['X-CSRF-TOKEN'];
                 delete instance.defaults.headers.common['X-Requested-With'];
@@ -236,8 +236,6 @@
                     }).catch(err=>{
                         console.log(err);
                     });
-
-
             },
             editEvent(event){
                 let currentObj = this;
