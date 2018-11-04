@@ -33,7 +33,7 @@ Route::delete('/events/proposed/delete/{id?}', 'User\EventController@proposedEve
 //proposed events for admin
 Route::get('/admin/events/proposed', 'Admin\AdminEventController@proposedAdminEvents');
 //Route::get('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsEdit');
-//Route::post('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsUpdate');
+Route::post('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsUpdateFromList');
 Route::delete('/admin/events/proposed/delete/{id?}', 'Admin\AdminEventController@proposedAdminEventsDelete');
 //published events for admin
 Route::post('/admin/events/published/store', 'Admin\AdminEventController@publishedAdminEventsStore')->name('adminStore');

@@ -1,8 +1,8 @@
 <template>
     <div class="map__wrap">
         <yandex-map
-                :coords="[47.50, 35.10]"
-                zoom="10"
+                :coords="[47.80, 35.165]"
+                zoom="11"
                 style="width: 95%; height: 600px;"
                 :cluster-options="{
         1: {clusterDisableClickZoom: true}

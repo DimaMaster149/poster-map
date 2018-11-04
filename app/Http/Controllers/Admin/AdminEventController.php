@@ -121,12 +121,16 @@ class AdminEventController extends Controller
 	}
 
 	//Добавление админом события без редактирования, сразу в просмотре всего списка
-	public function proposedAdminEventsUpdateFromList($id) {
+	public function proposedAdminEventsUpdateFromList(Request $request, $id) {
+		$long = $request[0];
+		$lat = $request[1];
 		$userId = Auth::user()->id;
 
 		Event::where('event_id', $id)->update([
 			'event_state' => 1,
 			'event_user' => $userId,
+			'event_long' => $long,
+			'event_lat' => $lat,
 		]);
 		return redirect('/home');
 	}

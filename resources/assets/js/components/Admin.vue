@@ -68,9 +68,6 @@
                         <div class="event-buttons__wrap">
                             <div class="event-buttons">
                                 <div class="event-buttons__item">
-                                    <button class="btn btn-success" @click="addEvent(event)">Добавить</button>
-                                </div>
-                                <div class="event-buttons__item">
                                     <button class="btn btn-warning" @click="editEvent(event)">Редактировать</button>
                                 </div>
                                 <div class="event-buttons__item">
@@ -101,6 +98,9 @@
                         </div>
                         <div class="event-buttons__wrap">
                             <div class="event-buttons">
+                                <div class="event-buttons__item">
+                                    <button class="btn btn-success" @click="addEvent(event)">Добавить</button>
+                                </div>
                                 <div class="event-buttons__item">
                                     <button class="btn btn-warning" v-on:click="editEvent(event)">Редактировать</button>
                                 </div>
@@ -187,8 +187,8 @@
                 let city = address[0];
                 let street = address[1];
                 let house = address[2];
-                // let geo_api = geocoderKey;
-                let query = `https://geocode-maps.yandex.ru/1.x/?format=json&apikey=${geocoderKey}&geocode=${city},+${street},+${house}`;
+                let geo_api = '67cdd21c-69a8-430b-86e8-bd748050180d';
+                let query = `https://geocode-maps.yandex.ru/1.x/?format=json&apikey=${geo_api}&geocode=${city},+${street},+${house}`;
                 let instance = currentObj.axios.create();
                 delete instance.defaults.headers.common['X-CSRF-TOKEN'];
                 delete instance.defaults.headers.common['X-Requested-With'];
@@ -247,6 +247,33 @@
                 this.event.event_time = event.event_time;
                 this.event.event_image = {};
             },
+
+            addEvent(event){
+                let currentObj = this;
+                let re = /\s*,\s*/;
+                let address = event.event_location.split(re);
+                let city = address[0];
+                let street = address[1];
+                let house = address[2];
+                let geo_api = '67cdd21c-69a8-430b-86e8-bd748050180d';
+                let query = `https://geocode-maps.yandex.ru/1.x/?format=json&apikey=${geo_api}&geocode=${city},+${street},+${house}`;
+                let instance = currentObj.axios.create();
+                delete instance.defaults.headers.common['X-CSRF-TOKEN'];
+                delete instance.defaults.headers.common['X-Requested-With'];
+                instance({
+                    method: 'get',
+                    url: query,
+                }).then(data => {
+                    console.log('geo data');
+                    let json = JSON.parse(data.request.response);
+                    let coords = json.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.split(' ');
+
+                    this.axios.post('/admin/events/proposed/'+event.event_id, coords)
+                        .then(resp => console.log(resp))
+                        .catch(err => console.log(err));
+                });
+            },
+
             deleteProposedEvent (event){
                 let currentObj = this;
                 console.log('delete function for ', event);
@@ -359,8 +386,8 @@
         height: auto;
         padding: 0 50px 0 0;
     }
-    .event-image__img{
-        width:100%;
+    .event-image__img img{
+        width:350px;
         height: auto;
     }
     .event-about {
