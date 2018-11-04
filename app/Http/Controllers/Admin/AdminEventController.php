@@ -13,6 +13,12 @@ use Intervention\Image\Facades\Image as Image;
 
 class AdminEventController extends Controller
 {
+	//Все опубликованные события
+	public function publishedAdminEvents() {
+		$publishedEvents = Event::where('event_state', 1)->orderby('event_id')->get();
+		return response()->json($publishedEvents);
+	}
+
 	//Для опубликованных событий
 	public function publishedAdminEventsEdit($id) {
 		$publishedEvent = Event::find($id);
@@ -40,6 +46,7 @@ class AdminEventController extends Controller
 		return redirect('/home');
 	}
 
+	//удаление опубликованных событий администратором
 	public function publishedAdminEventsDelete($id){
 		try{
 			Event::destroy($id);
@@ -51,11 +58,13 @@ class AdminEventController extends Controller
 
 	//Все предложенные события
 	public function proposedAdminEvents() {
-		$proposedEvents = Event::orderby('event_id')->where('event_state', 2)->get();
+		$proposedEvents = Event::where('event_state', 2)->orderby('event_id')->get();
 		return response()->json($proposedEvents);
 	}
 
-	public function proposedAdminEventsStore(Request $request) {
+	//добавление опубликованных событий и обновление предложенных как опубликованных
+	public function publishedAdminEventsStore(Request $request) {
+		$eventId = $request->event_id;
 		$file = $request->file('event_image'); //?
 		$extension = $file->getClientOriginalName();
 		$fileName = time().'_'.$extension;
@@ -63,18 +72,32 @@ class AdminEventController extends Controller
 		$resizedImage->save('images/'.$fileName);
 		$userId = Auth::user()->id;
 
-		$proposedEvent = new Event($request->all());
-		$proposedEvent->event_image=$fileName;
-		$proposedEvent->event_user = $userId;
-		$proposedEvent->event_state=1;
-		$proposedEvent->save();
-		return response()->json($proposedEvent);
+		if($eventId){
+			Event::where('event_id', $eventId)->update([
+				'event_title' =>  $request->input('event_title'),
+				'event_description' => $request->input('event_description'),
+				'event_state' => 1,
+				'event_user' => $userId,
+				'event_image' =>$fileName,
+				'event_date' => $request->input('event_date'),
+				'event_time' => $request->input('event_time'),
+				'event_location' => $request->input('event_location'),
+				'event_lat' => $request->event_lat,
+				'event_long' => $request->event_long,
+			]);
+			return redirect('/');
+		}else{
+			$publishedEvent = new Event($request->all());
+			$publishedEvent->event_image=$fileName;
+			$publishedEvent->event_user = $userId;
+			$publishedEvent->event_state=1;
+			$publishedEvent->event_lat=$request->event_lat;
+			$publishedEvent->event_long=$request->event_long;
+			$publishedEvent->save();
+			return response()->json($publishedEvent);
+		}
 	}
 
-	public function proposedAdminEventsEdit($id) {
-		$proposedEvent = Event::find($id);
-		return response()->json($proposedEvent);
-	}
 	//При update админом предложенного события, событие становится опубликованным
 	public function proposedAdminEventsUpdate(Request $request, $id) {
 		$file = $request->file('event_image'); //?
@@ -96,8 +119,8 @@ class AdminEventController extends Controller
 		]);
 		return redirect('/home');
 	}
-	//Добавление админом события без редактирования, сразу в просмотре всего списка
 
+	//Добавление админом события без редактирования, сразу в просмотре всего списка
 	public function proposedAdminEventsUpdateFromList($id) {
 		$userId = Auth::user()->id;
 
@@ -108,6 +131,7 @@ class AdminEventController extends Controller
 		return redirect('/home');
 	}
 
+	//удаление предложенных событий администратором
 	public function proposedAdminEventsDelete($id){
 		try{
 			Event::destroy($id);

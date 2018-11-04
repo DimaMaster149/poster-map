@@ -27,16 +27,17 @@ Route::post('/events/published/search', 'User\EventController@publishedEventsSea
 //proposed events for one user
 Route::get('/events/proposed', 'User\EventController@proposedEvents');
 Route::post('events/proposed/store', 'User\EventController@proposedEventsStore')->name('proposeStore');
-Route::get('/events/proposed/{id?}', 'User\EventController@proposedEventsEdit');
+//Route::get('/events/proposed/{id?}', 'User\EventController@proposedEventsEdit');
 Route::delete('/events/proposed/delete/{id?}', 'User\EventController@proposedEventsDelete');
 
 //proposed events for admin
 Route::get('/admin/events/proposed', 'Admin\AdminEventController@proposedAdminEvents');
-Route::post('/admin/events/proposed/store', 'Admin\AdminEventController@proposedAdminEventsStore');
-Route::get('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsEdit');
-Route::post('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsUpdate');
+//Route::get('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsEdit');
+//Route::post('/admin/events/proposed/{id?}', 'Admin\AdminEventController@proposedAdminEventsUpdate');
 Route::delete('/admin/events/proposed/delete/{id?}', 'Admin\AdminEventController@proposedAdminEventsDelete');
 //published events for admin
-Route::get('/admin/events/published/{id?}', 'Admin\AdminEventController@publishedAdminEventsEdit');
-Route::post('/admin/events/published/{id?}', 'Admin\AdminEventController@publishedAdminEventsUpdate');
+Route::post('/admin/events/published/store', 'Admin\AdminEventController@publishedAdminEventsStore')->name('adminStore');
+Route::get('/admin/events/published', 'Admin\AdminEventController@publishedAdminEvents');
+//Route::get('/admin/events/published/{id?}', 'Admin\AdminEventController@publishedAdminEventsEdit');
+//Route::post('/admin/events/published/{id?}', 'Admin\AdminEventController@publishedAdminEventsUpdate');
 Route::delete('/admin/events/published/delete/{id?}', 'Admin\AdminEventController@publishedAdminEventsDelete');

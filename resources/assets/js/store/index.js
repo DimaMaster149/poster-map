@@ -7,6 +7,8 @@ export const store = new Vuex.Store({
     state: {
         publishedDailyEvents: [],
         proposedUserEvents: [],
+        proposedAdminEvents:[],
+        publishedAdminEvents:[],
     },
     getters:{
         getPublishedDailyEvents: state => {
@@ -14,7 +16,13 @@ export const store = new Vuex.Store({
         },
         getProposedUserEvents: state =>{
             return state.proposedUserEvents;
-        }
+        },
+        getProposedAdminEvents: state =>{
+            return state.proposedAdminEvents;
+        },
+        getPublishedAdminEvents: state =>{
+            return state.publishedAdminEvents;
+        },
     },
     mutations:{
         loadPublishedDailyEvents: (state, payload)=>{
@@ -31,8 +39,20 @@ export const store = new Vuex.Store({
                 console.log('no payload for mutation');
             }
         },
-        // addProposedUserEvents: (state, payload) => {
-        //     state.proposedUserEvents.push(payload);
-        // },
+        //todo: refresh events after adding them in Propose and Admin components
+        loadProposedAdminEvents: (state, payload)=>{
+            if(payload){
+                state.proposedAdminEvents = payload;
+            }else{
+                console.log('no payload for mutation');
+            }
+        },
+        loadPublishedAdminEvents: (state, payload)=>{
+            if(payload){
+                state.publishedAdminEvents = payload;
+            }else{
+                console.log('no payload for mutation');
+            }
+        },
     },
 });

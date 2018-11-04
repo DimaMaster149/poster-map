@@ -20,6 +20,7 @@ const Example = Vue.component('example', require('./components/ExampleComponent.
 const App = Vue.component('app', require('./components/App.vue'));
 const Yandex = Vue.component('yandex', require('./components/Yandex.vue'));
 const Propose = Vue.component('propose', require('./components/Propose.vue'));
+const Admin = Vue.component('admin', require('./components/Admin.vue'));
 
 const router = new VueRouter({
     mode: 'history',
@@ -27,6 +28,7 @@ const router = new VueRouter({
         { path:"/example", name:'example', component: Example},
         { path:"/yandex", name:'yandex', component: Yandex},
         { path:"/propose", name:'propose', component: Propose},
+        { path:"/admin", name:'admin', component: Admin},
     ]
 });
 

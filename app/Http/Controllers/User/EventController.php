@@ -64,10 +64,6 @@ class EventController extends Controller
 		}
 	}
 
-	public function proposedEventsEdit($id) {
-		$proposedEvent = Event::find($id);
-		return response()->json($proposedEvent);
-	}
 
 	public function proposedEventsDelete($id){
 		try{
