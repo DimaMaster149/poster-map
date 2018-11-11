@@ -8,21 +8,24 @@
                                 <div class="nav__item">
                                     <router-link :to="{ name: 'yandex' }">Карта</router-link>
                                 </div>
-                                <div class="nav__item">
+                                <div v-if="this.type !== 2" class="nav__item">
                                     <router-link :to="{ name: 'propose' }">Предложить</router-link>
                                 </div>
-                                <div class="nav__item">
+                                <div v-if="this.type === 1" class="nav__item">
                                     <router-link :to="{ name: 'admin' }">Добавить</router-link>
                                 </div>
                             </div>
                     </div>
                     <div class="auth__wrap">
                         <div class="auth">
-                            <div class="auth__item">
+                            <div v-if="this.type === 2" class="auth__item">
                                 <a href="login">Войти</a>
                             </div>
-                            <div class="auth__item">
+                            <div v-if="this.type === 2" class="auth__item">
                                 <a href="register">Зарегистрироваться</a>
+                            </div>
+                            <div v-if="this.type !== 2" class="auth__item">
+                                <router-link to="/" @click.native="logout" >Выйти</router-link>
                             </div>
                         </div>
                     </div>
@@ -34,7 +37,28 @@
 
 <script>
     export default {
-        name: "App"
+        name: "App",
+        // type: 0 - user, 1 - admin, 2 - unauthorized
+        props: {
+            type: Number
+        },
+        data: () => ({
+            csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        }),
+        methods:{
+            logout:()=>{
+                axios.post('logout').then(response => {
+                    if (response.status === 302 || 401) {
+                        console.log('logout');
+                    }
+                    else {
+                        // throw error and go to catch block
+                    }
+                }).catch(error => {
+                    console.log(error);
+                });
+            },
+        },
     }
 </script>
 

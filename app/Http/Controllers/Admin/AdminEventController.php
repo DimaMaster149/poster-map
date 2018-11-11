@@ -28,7 +28,8 @@ class AdminEventController extends Controller
 	public function publishedAdminEventsUpdate(Request $request, $id) {
 		$file = $request->file('event_image'); //?
 		$extension = $file->getClientOriginalName();
-		$fileName = time().'_'.$extension;
+		//$fileName = time().'_'.$extension;
+		$fileName = $extension;
 		$resizedImage = Image::make($file)->resize(640,480);
 		$resizedImage->save('images/'.$fileName);
 		$userId = Auth::user()->id;
@@ -64,13 +65,15 @@ class AdminEventController extends Controller
 
 	//добавление опубликованных событий и обновление предложенных как опубликованных
 	public function publishedAdminEventsStore(Request $request) {
-		$eventId = $request->event_id;
 		$file = $request->file('event_image'); //?
 		$extension = $file->getClientOriginalName();
-		$fileName = time().'_'.$extension;
+		//$fileName = time().'_'.$extension;
+		$fileName = $extension;
 		$resizedImage = Image::make($file)->resize(640,480);
 		$resizedImage->save('images/'.$fileName);
+
 		$userId = Auth::user()->id;
+		$eventId = $request->event_id;
 
 		if($eventId){
 			Event::where('event_id', $eventId)->update([
@@ -85,7 +88,18 @@ class AdminEventController extends Controller
 				'event_lat' => $request->event_lat,
 				'event_long' => $request->event_long,
 			]);
-			return redirect('/');
+			$publishedUpdateEvent = new Event();
+			$publishedUpdateEvent->event_id = $eventId;
+			$publishedUpdateEvent->event_title = $request->input('event_title');
+			$publishedUpdateEvent->event_description = $request->input('event_description');
+			$publishedUpdateEvent->event_state =  2;
+			$publishedUpdateEvent->event_user = $userId;
+			$publishedUpdateEvent->event_image = $fileName;
+			$publishedUpdateEvent->event_date =  $request->input('event_date');
+			$publishedUpdateEvent->event_time = $request->input('event_time');
+			$publishedUpdateEvent->event_location = $request->input('event_location');
+
+			return response()->json($publishedUpdateEvent);
 		}else{
 			$publishedEvent = new Event($request->all());
 			$publishedEvent->event_image=$fileName;
@@ -102,7 +116,8 @@ class AdminEventController extends Controller
 	public function proposedAdminEventsUpdate(Request $request, $id) {
 		$file = $request->file('event_image'); //?
 		$extension = $file->getClientOriginalName();
-		$fileName = time().'_'.$extension;
+		//$fileName = time().'_'.$extension;
+		$fileName = $extension;
 		$resizedImage = Image::make($file)->resize(640,480);
 		$resizedImage->save('images/'.$fileName);
 		$userId = Auth::user()->id;

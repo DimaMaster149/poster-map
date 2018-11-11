@@ -4,8 +4,8 @@
             <div class="admin">
                 <div class="admin-form">
                     <form @submit="adminStore" enctype="multipart/form-data" >
-                        <input type="hidden" name="event_id" v-model="event.event_id" @change="setEventId" >
-                        <input type="hidden" name="event_long" :value="setEventLong">
+
+                        <input type="hidden" name="event_long" :value="setEventLong"><input type="hidden" name="event_id" v-model="event.event_id" @change="setEventId" >
                         <input type="hidden" name="event_lat" :value="setEventLat">
                         <div class="form-group">
                             <label for="event_title"> Введите название </label>
@@ -45,8 +45,10 @@
             </div>
         </div>
         <div class="events__wrap">
-            <button class="btn btn-info" @click="showProposedEvents">Предложенные</button>
-            <button class="btn btn-success"  @click="showPublishedEvents">Опубликованные</button>
+            <div class="events-buttons__wrap">
+                <button class="btn btn-info" @click="showProposedEvents">Предложенные</button>
+                <button class="btn btn-success"  @click="showPublishedEvents">Опубликованные</button>
+            </div>
             <div v-if="this.showPublished" class="events">
                 <div class="events__title">
                     Опубликованные события:
@@ -128,7 +130,7 @@
                     event_location:'',
                     event_date:'',
                     event_time:'',
-                    event_image:{},
+                    event_image:'',
                     event_long:'',
                     event_lat:'',
                 },
@@ -174,6 +176,7 @@
                 console.log(e.target.files[0]);
                 this.event.event_image = e.target.files[0];
             },
+            //Общее добавление
             adminStore(e) {
                 e.preventDefault();
                 let currentObj = this;
@@ -192,6 +195,7 @@
                 let instance = currentObj.axios.create();
                 delete instance.defaults.headers.common['X-CSRF-TOKEN'];
                 delete instance.defaults.headers.common['X-Requested-With'];
+                //Получение координат через геокодер
                 instance({
                     method: 'get',
                     url: query,
@@ -216,19 +220,17 @@
                     formData.append('event_lat', this.event.event_lat);
 
                     this.axios.post('/admin/events/published/store', formData, config)
-                        .then(function (response) {
-                            console.log(response);
-                            currentObj.event.event_id = '';
-                            currentObj.event.event_title = '';
-                            currentObj.event.event_description = '';
-                            currentObj.event.event_location = '';
-                            currentObj.event.event_date = '';
-                            currentObj.event.event_time = '';
-                            currentObj.event.event_image = {};
-                            currentObj.event.event_long = '';
-                            currentObj.event.event_lat = '';
-                            //не получается передать картинку
-                            // currentObj.$store.commit('addProposedUserEvents', currentObj.event);
+                        .then((response)=> {
+                            this.$store.commit('addPublishedAdminEvents', response.data);
+                            this.event.event_id = '';
+                            this.event.event_title = '';
+                            this.event.event_description = '';
+                            this.event.event_location = '';
+                            this.event.event_date = '';
+                            this.event.event_time = '';
+                            this.event.event_image = '';
+                            this.event.event_long = '';
+                            this.event.event_lat = '';
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -247,7 +249,7 @@
                 this.event.event_time = event.event_time;
                 this.event.event_image = {};
             },
-
+            //Добавление события из предложенного в опубликованное через кнопку добавить
             addEvent(event){
                 let currentObj = this;
                 let re = /\s*,\s*/;
@@ -269,11 +271,14 @@
                     let coords = json.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.split(' ');
 
                     this.axios.post('/admin/events/proposed/'+event.event_id, coords)
-                        .then(resp => console.log(resp))
+                        .then(resp => {
+                            console.log(resp);
+                            currentObj.$store.commit('addPublishedAdminEvents', event);
+                            currentObj.$store.commit('deleteProposedAdminEvents', event);
+                        })
                         .catch(err => console.log(err));
                 });
             },
-
             deleteProposedEvent (event){
                 let currentObj = this;
                 console.log('delete function for ', event);
@@ -286,10 +291,10 @@
                 })
                     .then((willDelete) => {
                         if (willDelete) {
-                            this.axios.delete("/admin/events/proposed/delete"+event.event_id)
+                            this.axios.delete("/admin/events/proposed/delete/"+event.event_id)
                                 .then(function(resp){
                                     console.log('delete response', resp);
-                                    currentObj.$router.push('/');
+                                    currentObj.$store.commit('deleteProposedAdminEvents', event);
                                 }).catch((err)=>{
                                 console.log(err)
                             });
@@ -316,7 +321,7 @@
                             this.axios.delete("/admin/events/published/delete/"+event.event_id)
                                 .then(function(resp){
                                     console.log('delete response', resp);
-                                    currentObj.$router.push('/');
+                                    currentObj.$store.commit('deletePublishedAdminEvents', event);
                                 }).catch((err)=>{
                                 console.log(err)
                             });
@@ -339,7 +344,8 @@
             },
             setEventLong(){
               return this.event.event_long;
-            }, setEventLat(){
+            },
+            setEventLat(){
                 return this.event.event_lat;
             },
         },
@@ -355,14 +361,18 @@
         justify-content: center;
     }
     .admin-form{
-        border:1px solid black;
+        border:1px solid #155724;
         padding:50px;
+        box-shadow: 0px 4px 10px 4px rgba(18, 132, 23, 0.48);
     }
     .events__wrap{
-        width:80%;
+        width:100%;
         height: auto;
         margin:50px 100px 20px 100px;
         padding-right: 100px;
+    }
+    .events-buttons__wrap{
+        margin:0 0 50px 0;
     }
     .events{
         display:flex;
@@ -378,17 +388,19 @@
     }
     .event-block {
         width: 100%;
-        margin: 10px 0 15px 0;
+        margin: 20px 0 15px 0;
         display: flex;
     }
     .event-image__wrap {
-        max-width: 350px;
-        height: auto;
+        width: 45%;
         padding: 0 50px 0 0;
     }
-    .event-image__img img{
-        width:350px;
+    .event-image__img{
+        width: 100%;
         height: auto;
+    }
+    .event-about__wrap{
+        width:55%;
     }
     .event-about {
         font-size: 16px;

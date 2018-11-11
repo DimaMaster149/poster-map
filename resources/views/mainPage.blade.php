@@ -9,7 +9,7 @@
 </head>
 <body>
 <div id="app">
-    <app></app>
+    <app :type={{$userType}}></app>
     <router-view></router-view>
 </div>
 

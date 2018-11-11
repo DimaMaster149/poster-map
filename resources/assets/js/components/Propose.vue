@@ -4,6 +4,7 @@
             <div class="propose">
                 <div class="propose-form">
                     <form @submit="proposeStore" enctype="multipart/form-data" >
+                        <input type="hidden" name="event_id" v-model="event.event_id" @change="setEventId" >
                         <div class="form-group">
                             <label for="event_title"> Введите название </label>
                             <input type="text" class="form-control" name="event_title" value=""
@@ -41,6 +42,7 @@
                 </div>
             </div>
         </div>
+        {{this.type}}
 
         <div class="events__wrap">
             <div class="events">
@@ -85,6 +87,7 @@
         data(){
             return{
                 event:{
+                    event_id:'',
                     event_title:'',
                     event_description:'',
                     event_location:'',
@@ -97,6 +100,10 @@
                     lang: 'en'
                 }
             }
+        },
+        // type: 0 - user, 1 - admin, 2 - unauthorized
+        props: {
+            type: Number
         },
         created:
             function () {
@@ -128,6 +135,7 @@
                 };
 
                 let formData = new FormData();
+                formData.append('event_id', this.event.event_id);
                 formData.append('event_title', this.event.event_title);
                 formData.append('event_description', this.event.event_description);
                 formData.append('event_location', this.event.event_location);
@@ -137,7 +145,8 @@
 
                 this.axios.post('/events/proposed/store', formData, config)
                     .then(function (response) {
-                        console.log(response);
+                        currentObj.$store.commit('addProposedUserEvents', response.data);
+                        currentObj.event.event_id = '';
                         currentObj.event.event_title = '';
                         currentObj.event.event_description = '';
                         currentObj.event.event_location = '';
@@ -145,14 +154,13 @@
                         currentObj.event.event_time = '';
                         currentObj.event.event_image = {};
                         //не получается передать картинку
-                        // currentObj.$store.commit('addProposedUserEvents', currentObj.event);
                     })
                     .catch(function (error) {
                         console.log(error);
                     });
             },
             editEvent(event){
-                let currentObj = this;
+                this.event.event_id = event.event_id;
                 this.event.event_title = event.event_title;
                 this.event.event_description = event.event_description;
                 this.event.event_location = event.event_location;
@@ -174,8 +182,8 @@
                         if (willDelete) {
                             this.axios.delete("/events/proposed/delete/"+event.event_id)
                                 .then(function(resp){
-                                console.log('delete response', resp);
-                                currentObj.$router.push('/');
+                                    currentObj.$store.commit('deleteProposedUserEvents', event);
+                                    console.log('delete response', resp);
                             }).catch((err)=>{
                                     console.log(err)
                                 });
@@ -186,6 +194,9 @@
                             swal("This event is safe");
                         }
                     });
+            },
+            setEventId(){
+                this.event.event_id = e.target.value;
             },
         },
         name: "Propose",
@@ -204,14 +215,14 @@
     justify-content: center;
 }
 .propose-form{
-    border:1px solid black;
+    border:1px solid #155724;
     padding:50px;
+    box-shadow: 0px 4px 10px 4px rgba(18, 132, 23, 0.48);
 }
 .events__wrap{
-    width:80%;
+    width:100%;
     height: auto;
     margin:50px 100px 20px 100px;
-    padding-right: 100px;
 }
 .events{
     display:flex;
@@ -231,13 +242,15 @@
     display: flex;
 }
 .event-image__wrap {
-    max-width: 350px;
-    height: auto;
+    width: 45%;
     padding: 0 50px 0 0;
 }
 .event-image__img{
     width:100%;
     height: auto;
+}
+.event-about__wrap{
+    width:55%;
 }
 .event-about {
     font-size: 16px;

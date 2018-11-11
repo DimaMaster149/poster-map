@@ -10,7 +10,6 @@
                 :behaviors="['drag', 'scrollZoom']"
                 map-type="hybrid"
         >
-
             <ymap-marker v-for="marker in this.placemarkers" :key="marker.id"
                     :marker-id="marker.id"
                     marker-type="placemark"
@@ -85,8 +84,8 @@
                        coords: [event.event_lat, event.event_long],
                        id: event.event_id,
                        title: `<div>${event.event_title}</div>`,
-                       description: `<div>${event.event_description}</div>`,
-                       date : `<div>${event.event_date}</div>`,
+                       description: `<div>${event.event_description}</div> <div>${event.event_location}</div>`,
+                       date : `<div>${event.event_time} <br>${event.event_date}</div>`,
                    };
                    eventArray.push(eventObj);
                 });
@@ -122,8 +121,16 @@
     }
 .event-block {
     width: 100%;
-    margin: 10px 0 15px 0;
+    margin: 20px 0 15px 0;
     display: flex;
+}
+.event-image__wrap {
+    width: 35%;
+    padding: 0 50px 0 0;
+}
+.event-image__img{
+    width: 100%;
+    height: auto;
 }
 .event-image__wrap {
     max-width: 350px;

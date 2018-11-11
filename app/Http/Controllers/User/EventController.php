@@ -31,36 +31,48 @@ class EventController extends Controller
 		$proposedEvents = Event::orderby('event_id')->where('event_state', 2)->where('event_user', $userId)->get();
 		return response()->json($proposedEvents);
 	}
-	//Добавление, редактирование и удаление предолженны событий определенным пользователем
+	//Добавление, редактирование и удаление предложенных событий определенным пользователем
+	//todo: Добавление без картинки или базовой картинкой
 	public function proposedEventsStore(Request $request) {
 		$file = $request->file('event_image'); //?
 		$extension = $file->getClientOriginalName();
-		$fileName = time().'_'.$extension;
+		//$fileName = time().'_'.$extension;
+		$fileName = $extension;
 		$resizedImage = Image::make($file)->resize(640,480);
 		$resizedImage->save('images/'.$fileName);
 
 		$userId = Auth::user()->id;
-		$eventTitle = $request->event_title;
-		$foundEvent = Event::where('event_title', $eventTitle)->where('event_user', $userId)->first();
-				if($foundEvent){
-			Event::where('event_title', $eventTitle)->update([
-				'event_title' =>  $request->input('event_title'),
-				'event_description' => $request->input('event_description'),
-				'event_state' => 2,
-				'event_user' => $userId,
-				'event_image' =>$fileName,
-				'event_date' => $request->input('event_date'),
-				'event_time' => $request->input('event_time'),
-				'event_location' => $request->input('event_location'),
-			]);
-			return redirect('/');
+		$eventId = $request->event_id;
+		if($eventId){
+				Event::where('event_id', $eventId)->update([
+					'event_title' =>  $request->input('event_title'),
+					'event_description' => $request->input('event_description'),
+					'event_state' => 2,
+					'event_user' => $userId,
+					'event_image' =>$fileName,
+					'event_date' => $request->input('event_date'),
+					'event_time' => $request->input('event_time'),
+					'event_location' => $request->input('event_location'),
+				]);
+
+				$proposedUpdateEvent = new Event();
+				$proposedUpdateEvent->event_id = $eventId;
+				$proposedUpdateEvent->event_title = $request->input('event_title');
+				$proposedUpdateEvent->event_description = $request->input('event_description');
+				$proposedUpdateEvent->event_state =  2;
+				$proposedUpdateEvent->event_user = $userId;
+				$proposedUpdateEvent->event_image = $fileName;
+				$proposedUpdateEvent->event_date =  $request->input('event_date');
+				$proposedUpdateEvent->event_time = $request->input('event_time');
+				$proposedUpdateEvent->event_location = $request->input('event_location');
+			return response()->json($proposedUpdateEvent);
 		}else{
 			$proposedEvent = new Event($request->all());
 			$proposedEvent->event_image=$fileName;
 			$proposedEvent->event_user = $userId;
 			$proposedEvent->event_state=2;
 			$proposedEvent->save();
-			return redirect('/');
+			return response()->json($proposedEvent);
 		}
 	}
 

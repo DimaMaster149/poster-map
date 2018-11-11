@@ -26,7 +26,6 @@ const Admin = Vue.component('admin', require('./components/Admin.vue'));
 const router = new VueRouter({
     mode: 'history',
     routes: [
-        { path:"/example", name:'example', component: Example},
         { path:"/yandex", name:'yandex', component: Yandex},
         { path:"/propose", name:'propose', component: Propose},
         { path:"/admin", name:'admin', component: Admin},
