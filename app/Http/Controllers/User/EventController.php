@@ -35,15 +35,23 @@ class EventController extends Controller
 	//todo: Добавление без картинки или базовой картинкой
 	public function proposedEventsStore(Request $request) {
 		$file = $request->file('event_image'); //?
-		$extension = $file->getClientOriginalName();
-		//$fileName = time().'_'.$extension;
-		$fileName = $extension;
-		$resizedImage = Image::make($file)->resize(640,480);
-		$resizedImage->save('images/'.$fileName);
+		if($file){
+			$extension = $file->getClientOriginalName();
+			//$fileName = time().'_'.$extension;
+			$fileName = $extension;
+			$resizedImage = Image::make($file)->resize(640,480);
+			$resizedImage->save('images/'.$fileName);
+		}else{
+			$fileName = 'default.jpg';
+		}
 
 		$userId = Auth::user()->id;
 		$eventId = $request->event_id;
 		if($eventId){
+			$originalImage = Event::where('event_id', $eventId)->first()->event_image;
+		}
+		if($eventId){
+			if($file){
 				Event::where('event_id', $eventId)->update([
 					'event_title' =>  $request->input('event_title'),
 					'event_description' => $request->input('event_description'),
@@ -65,7 +73,31 @@ class EventController extends Controller
 				$proposedUpdateEvent->event_date =  $request->input('event_date');
 				$proposedUpdateEvent->event_time = $request->input('event_time');
 				$proposedUpdateEvent->event_location = $request->input('event_location');
-			return response()->json($proposedUpdateEvent);
+				return response()->json($proposedUpdateEvent);
+			}else{
+				Event::where('event_id', $eventId)->update([
+					'event_title' =>  $request->input('event_title'),
+					'event_description' => $request->input('event_description'),
+					'event_state' => 2,
+					'event_user' => $userId,
+					'event_date' => $request->input('event_date'),
+					'event_time' => $request->input('event_time'),
+					'event_location' => $request->input('event_location'),
+				]);
+
+				$proposedUpdateEvent = new Event();
+				$proposedUpdateEvent->event_id = $eventId;
+				$proposedUpdateEvent->event_title = $request->input('event_title');
+				$proposedUpdateEvent->event_description = $request->input('event_description');
+				$proposedUpdateEvent->event_state =  2;
+				$proposedUpdateEvent->event_user = $userId;
+				$proposedUpdateEvent->event_image = $originalImage;
+				$proposedUpdateEvent->event_date =  $request->input('event_date');
+				$proposedUpdateEvent->event_time = $request->input('event_time');
+				$proposedUpdateEvent->event_location = $request->input('event_location');
+				return response()->json($proposedUpdateEvent);
+			}
+
 		}else{
 			$proposedEvent = new Event($request->all());
 			$proposedEvent->event_image=$fileName;

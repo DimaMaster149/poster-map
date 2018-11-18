@@ -66,40 +66,71 @@ class AdminEventController extends Controller
 	//добавление опубликованных событий и обновление предложенных как опубликованных
 	public function publishedAdminEventsStore(Request $request) {
 		$file = $request->file('event_image'); //?
-		$extension = $file->getClientOriginalName();
-		//$fileName = time().'_'.$extension;
-		$fileName = $extension;
-		$resizedImage = Image::make($file)->resize(640,480);
-		$resizedImage->save('images/'.$fileName);
-
+		if($file){
+			$extension = $file->getClientOriginalName();
+			//$fileName = time().'_'.$extension;
+			$fileName = $extension;
+			$resizedImage = Image::make($file)->resize(640,480);
+			$resizedImage->save('images/'.$fileName);
+		}else{
+			$fileName = 'default.jpg';
+		}
 		$userId = Auth::user()->id;
 		$eventId = $request->event_id;
+		if($eventId){
+			$originalImage = Event::where('event_id', $eventId)->first()->event_image;
+		}
 
 		if($eventId){
-			Event::where('event_id', $eventId)->update([
-				'event_title' =>  $request->input('event_title'),
-				'event_description' => $request->input('event_description'),
-				'event_state' => 1,
-				'event_user' => $userId,
-				'event_image' =>$fileName,
-				'event_date' => $request->input('event_date'),
-				'event_time' => $request->input('event_time'),
-				'event_location' => $request->input('event_location'),
-				'event_lat' => $request->event_lat,
-				'event_long' => $request->event_long,
-			]);
-			$publishedUpdateEvent = new Event();
-			$publishedUpdateEvent->event_id = $eventId;
-			$publishedUpdateEvent->event_title = $request->input('event_title');
-			$publishedUpdateEvent->event_description = $request->input('event_description');
-			$publishedUpdateEvent->event_state =  2;
-			$publishedUpdateEvent->event_user = $userId;
-			$publishedUpdateEvent->event_image = $fileName;
-			$publishedUpdateEvent->event_date =  $request->input('event_date');
-			$publishedUpdateEvent->event_time = $request->input('event_time');
-			$publishedUpdateEvent->event_location = $request->input('event_location');
-
-			return response()->json($publishedUpdateEvent);
+			if($file){
+				Event::where('event_id', $eventId)->update([
+					'event_title' =>  $request->input('event_title'),
+					'event_description' => $request->input('event_description'),
+					'event_state' => 1,
+					'event_user' => $userId,
+					'event_image' =>$fileName,
+					'event_date' => $request->input('event_date'),
+					'event_time' => $request->input('event_time'),
+					'event_location' => $request->input('event_location'),
+					'event_lat' => $request->event_lat,
+					'event_long' => $request->event_long,
+				]);
+				$publishedUpdateEvent = new Event();
+				$publishedUpdateEvent->event_id = $eventId;
+				$publishedUpdateEvent->event_title = $request->input('event_title');
+				$publishedUpdateEvent->event_description = $request->input('event_description');
+				$publishedUpdateEvent->event_state =  2;
+				$publishedUpdateEvent->event_user = $userId;
+				$publishedUpdateEvent->event_image = $fileName;
+				$publishedUpdateEvent->event_date =  $request->input('event_date');
+				$publishedUpdateEvent->event_time = $request->input('event_time');
+				$publishedUpdateEvent->event_location = $request->input('event_location');
+				return response()->json($publishedUpdateEvent);
+				}
+				else{
+				Event::where('event_id', $eventId)->update([
+					'event_title' =>  $request->input('event_title'),
+					'event_description' => $request->input('event_description'),
+					'event_state' => 1,
+					'event_user' => $userId,
+					'event_date' => $request->input('event_date'),
+					'event_time' => $request->input('event_time'),
+					'event_location' => $request->input('event_location'),
+					'event_lat' => $request->event_lat,
+					'event_long' => $request->event_long,
+				]);
+				$publishedUpdateEvent = new Event();
+				$publishedUpdateEvent->event_id = $eventId;
+				$publishedUpdateEvent->event_title = $request->input('event_title');
+				$publishedUpdateEvent->event_description = $request->input('event_description');
+				$publishedUpdateEvent->event_state =  2;
+				$publishedUpdateEvent->event_image = $originalImage;
+				$publishedUpdateEvent->event_user = $userId;
+				$publishedUpdateEvent->event_date =  $request->input('event_date');
+				$publishedUpdateEvent->event_time = $request->input('event_time');
+				$publishedUpdateEvent->event_location = $request->input('event_location');
+				return response()->json($publishedUpdateEvent);
+			}
 		}else{
 			$publishedEvent = new Event($request->all());
 			$publishedEvent->event_image=$fileName;
